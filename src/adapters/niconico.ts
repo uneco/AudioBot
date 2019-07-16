@@ -3,10 +3,10 @@ import axiosCookieJarSupport from "axios-cookiejar-support";
 import { CookieJar } from "tough-cookie";
 import { EventEmitter } from "events";
 import { JSDOM } from "jsdom";
-import URLParse from "url-parse";
 import { ReadStream } from "tty";
+import { parse as parseURL } from "url";
 
-import { BotPlugin } from "../client";
+import { MediaAdapter } from "../client";
 
 export class Niconico {
   public cookieJar: CookieJar;
@@ -51,8 +51,8 @@ export class NicoVideo extends EventEmitter {
   }
 
   public async httpStream(url: string): Promise<ReadStream> {
-    const parsed = new URLParse(url);
-    const videoId = parsed.pathname.replace("/watch/", "");
+    const pathname = parseURL(url).pathname || "";
+    const videoId = pathname.replace("/watch/", "");
     const data = await this.watch(videoId);
     const uri = data.video.smileInfo.url;
     const res = await axios.get(uri, { responseType: "stream" });
@@ -60,7 +60,7 @@ export class NicoVideo extends EventEmitter {
   }
 }
 
-export default class NicoPlugin implements BotPlugin {
+export default class NicoPlugin implements MediaAdapter {
   public cookieJar!: CookieJar;
 
   public constructor(email: string, password: string) {
@@ -74,10 +74,15 @@ export default class NicoPlugin implements BotPlugin {
         throw error;
       });
   }
-  public async httpStream(url: string): Promise<ReadStream> {
+  public async fetchStream(url: string): Promise<ReadStream> {
     await this.pendLogin();
     const client = new NicoVideo(this.cookieJar);
     return client.httpStream(url);
+  }
+  public isHandleableUrl(url: string): boolean {
+    const parsed = parseURL(url);
+    if (!parsed.host) return false;
+    return parsed.host.includes("nicovideo");
   }
   private pendLogin(): Promise<void> {
     return new Promise((resolve): void => {

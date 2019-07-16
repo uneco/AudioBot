@@ -1,48 +1,31 @@
-import { ActionOption } from "./client";
-import { Message } from "discord.js";
-import { Audio } from "./actions";
-const audio = new Audio();
+import { ActionDefinition } from "./client";
+import { play, stop, next, resume, pause } from "./actions";
 
-const Options: ActionOption[] = [
+const Options: ActionDefinition[] = [
   {
     command: "play",
     comment: "play [niconico, youtube, mp3]",
-    action: (message: Message): void => {
-      console.log("play", message.content);
-      audio.play(message);
-    }
+    action: play
   },
   {
     command: "stop",
     comment: "再生リストを削除して停止させます",
-    action: (message: Message): void => {
-      console.log("stop", message.content);
-      audio.stop(message);
-    }
+    action: stop
   },
   {
     command: "next",
     comment: "次の曲に飛びます",
-    action: (message: Message): void => {
-      console.log("next", message.content);
-      audio.next(message);
-    }
+    action: next
   },
   {
     command: "resume",
     comment: "一時停止した曲を再開させます",
-    action: (message: Message): void => {
-      console.log("resume", message.content);
-      audio.resume(message);
-    }
+    action: resume
   },
   {
     command: "pause",
     comment: "曲を一時させます",
-    action: (message: Message): void => {
-      console.log("pause", message.content);
-      audio.pause(message);
-    }
+    action: pause
   }
 ];
 

@@ -1,34 +1,29 @@
-import { Message, StreamDispatcher, VoiceConnection } from "discord.js";
-import { ReadStream } from "tty";
+import { Message, StreamDispatcher } from "discord.js";
 import { Readable } from "stream";
 
-export interface ActionOption {
+export interface ActionOptions {
+  adapters: MediaAdapter[];
+}
+
+export interface ActionDefinition {
   command: string;
   comment?: string;
-  action: (message: Message) => void;
+  action: (message: Message, state: BotState, options: ActionOptions) => void;
 }
 
-export interface State {
-  dispacker: StreamDispatcher | null;
-  connection: VoiceConnection | null;
-  musicQue: string[];
+export interface MediaAdapter {
+  fetchStream: (url: string) => Promise<Readable>;
+  isHandleableUrl: (url: string) => boolean;
 }
 
-export interface Actions {
-  push: (url: string) => void;
-  pop: () => string;
-  shuffle: () => void;
+export interface BotState {
+  currentDispatcher?: StreamDispatcher;
+  currentQueue: MediaQueue;
 }
 
-export interface Store {
-  state: State;
-  actions: Actions;
+export interface BotOptions {
+  msgActions: ActionDefinition[];
+  adapters: MediaAdapter[];
 }
 
-export interface BotPlugin {
-  httpStream: (url: string) => Promise<ReadStream | Readable>;
-}
-
-export interface Bot {
-  msgActions: ActionOption[];
-}
+export type MediaQueue = (() => Promise<Readable>)[];

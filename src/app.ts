@@ -2,15 +2,13 @@ import Bot from "./client";
 import msgActions from "./msgActions";
 
 import config from "./config";
-import { niconico, mp3, youtube } from "./plugins";
+import { Niconico, Mp3, Youtube } from "./adapters";
 
-const plugins = {
-  niconico: new niconico(config.niconico.email, config.niconico.password),
-  mp3: new mp3(),
-  youtube: new youtube()
-};
+const adapters = [
+  new Niconico(config.niconico.email, config.niconico.password),
+  new Mp3(),
+  new Youtube()
+];
 
-Bot.prototype.plugins = plugins;
-
-const bot = new Bot({ msgActions });
+const bot = new Bot({ msgActions, adapters });
 bot.login(config.token);
